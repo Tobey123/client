@@ -1,10 +1,12 @@
-// Copyright 2015 Keybase, Inc. All rights reserved. Use of
+// Copyright 2017 Keybase, Inc. All rights reserved. Use of
 // this source code is governed by the included BSD license.
 
 // PerUserKeyUpgrade creates a per-user-key for the active user
 // if they do not already have one.
 // It adds a per-user-key link to the sigchain and adds the key to the local keyring.
 package engine
+
+// TODO I want someone to be really sure that this won't pop up a passphrase prompt.
 
 import (
 	"fmt"
@@ -48,7 +50,6 @@ func (e *PerUserKeyUpgrade) Prereqs() Prereqs {
 func (e *PerUserKeyUpgrade) RequiredUIs() []libkb.UIKind {
 	return []libkb.UIKind{
 		libkb.LogUIKind,
-		libkb.SecretUIKind,
 	}
 }
 
