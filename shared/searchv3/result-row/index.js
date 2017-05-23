@@ -1,8 +1,9 @@
 // @flow
 import * as Constants from '../../constants/searchv3'
 import React from 'react'
-import {Avatar, Box, Icon, ClickableBox, Text} from '../../common-adapters'
+import {Box, Icon, ClickableBox, Text} from '../../common-adapters'
 import {globalColors, globalStyles, globalMargins} from '../../styles'
+import IconOrAvatar from '../icon-or-avatar'
 
 import type {IconType} from '../../common-adapters/icon'
 
@@ -26,11 +27,6 @@ export type Props = {|
 
   onShowTracker: () => void,
 |}
-
-const IconOrAvatar = ({service, username, icon, avatarSize, style}) =>
-  service === 'Keybase'
-    ? <Avatar username={username} size={avatarSize} style={style} />
-    : icon ? <Icon type={icon} style={style} /> : null
 
 const followingStateToStyle = (followingState: FollowingState) => {
   return {
