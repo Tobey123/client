@@ -9,3 +9,5 @@ const services: {[service: string]: true} = {
 }
 
 export type Service = $Keys<typeof services>
+
+export type FollowingState = 'Following' | 'NotFollowing' | 'NoState' | 'You'

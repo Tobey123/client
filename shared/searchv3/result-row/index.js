@@ -7,17 +7,15 @@ import IconOrAvatar from '../icon-or-avatar'
 
 import type {IconType} from '../../common-adapters/icon'
 
-type FollowingState = 'Following' | 'NotFollowing' | 'NoState' | 'You'
-
 export type Props = {|
   id: string,
 
-  leftFollowingState: FollowingState,
+  leftFollowingState: Constants.FollowingState,
   leftIcon: IconType,
   leftService: Constants.Service,
   leftUsername: string,
 
-  rightFollowingState: FollowingState,
+  rightFollowingState: Constants.FollowingState,
   rightFullname: ?string,
   rightIcon: ?IconType,
   rightService: ?Constants.Service,
@@ -28,7 +26,7 @@ export type Props = {|
   onShowTracker: () => void,
 |}
 
-const followingStateToStyle = (followingState: FollowingState) => {
+const followingStateToStyle = (followingState: Constants.FollowingState) => {
   return {
     Following: {
       color: globalColors.green2,
