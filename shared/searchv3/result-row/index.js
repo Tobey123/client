@@ -4,6 +4,7 @@ import React from 'react'
 import {Box, Icon, ClickableBox, Text} from '../../common-adapters'
 import {globalColors, globalStyles, globalMargins} from '../../styles'
 import IconOrAvatar from '../icon-or-avatar'
+import {followingStateToStyle} from '../shared'
 
 import type {IconType} from '../../common-adapters/icon'
 
@@ -25,21 +26,6 @@ export type Props = {|
 
   onShowTracker: () => void,
 |}
-
-const followingStateToStyle = (followingState: Constants.FollowingState) => {
-  return {
-    Following: {
-      color: globalColors.green2,
-    },
-    NoState: {},
-    NotFollowing: {
-      color: globalColors.blue,
-    },
-    You: {
-      fontStyle: 'italic',
-    },
-  }[followingState]
-}
 
 const Left = ({leftService, leftIcon, leftUsername, leftFollowingState}) => {
   return (
