@@ -477,10 +477,10 @@ func (d *Service) runBackgroundPerUserKeyUpgrade() {
 		return
 	}
 
-	args := &engine.PerUserKeyBackgroundArgs{
+	arg := &engine.PerUserKeyBackgroundArgs{
 		Settings: engine.PerUserKeyBackgroundDefaultSettings,
 	}
-	eng := engine.NewPerUserKeyBackground(d.G(), args)
+	eng := engine.NewPerUserKeyBackground(d.G(), arg)
 	go func() {
 		ectx := &engine.Context{NetContext: context.Background()}
 		err := engine.RunEngine(eng, ectx)

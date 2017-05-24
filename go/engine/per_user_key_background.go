@@ -57,6 +57,10 @@ type PerUserKeyBackground struct {
 
 type PerUserKeyBackgroundArgs struct {
 	Settings PerUserKeyBackgroundSettings
+
+	// Channels used for testing. Normally nil.
+	testingMetaCh     chan<- string
+	testingRoundResCh chan<- error
 }
 
 // NewPerUserKeyBackground creates a PerUserKeyBackground engine.
@@ -75,9 +79,7 @@ func (e *PerUserKeyBackground) Name() string {
 
 // GetPrereqs returns the engine prereqs.
 func (e *PerUserKeyBackground) Prereqs() Prereqs {
-	return Prereqs{
-		Session: true,
-	}
+	return Prereqs{}
 }
 
 // RequiredUIs returns the required UIs.
@@ -93,29 +95,33 @@ func (e *PerUserKeyBackground) SubConsumers() []libkb.UIConsumer {
 }
 
 // Run starts the engine.
+// Returns immediately, kicks off a background goroutine.
 func (e *PerUserKeyBackground) Run(ectx *Context) (err error) {
 	ctx := ectx.NetContext
 	defer e.G().CTrace(ctx, "PerUserKeyBackground", func() error { return err })()
 
-	// use a new context with a saved cancel function
-	ctx, cancel := context.WithCancel(ctx)
+	// use a new background context with a saved cancel function
+	ctx, cancel := context.WithCancel(context.Background())
 	e.Lock()
 	e.shutdownFunc = cancel
 	if e.shutdown {
 		// Shutdown before started
 		cancel()
 		e.Unlock()
+		e.meta("early-shutdown")
 		return nil
 	}
 	e.Unlock()
 
 	// start the loop and return
 	go func() {
+		e.meta("loop-start")
 		err := e.loop(ctx, ectx)
 		if err != nil {
 			e.G().Log.CDebugf(ctx, "PerUserKeyBackground loop error: %s", err)
 		}
 		cancel()
+		e.meta("loop-exit")
 	}()
 
 	return nil
@@ -134,6 +140,7 @@ func (e *PerUserKeyBackground) loop(ctx context.Context, ectx *Context) error {
 	if err := libkb.SleepWithContext(ctx, e.G().Clock(), e.args.Settings.Start); err != nil {
 		return err
 	}
+	e.meta("woke-start")
 	var i int
 	for {
 		i += 1
@@ -143,12 +150,17 @@ func (e *PerUserKeyBackground) loop(ctx context.Context, ectx *Context) error {
 		} else {
 			e.G().Log.CDebugf(ctx, "PerUserKeyBackground round(%v) complete", i, err)
 		}
+		if e.args.testingRoundResCh != nil {
+			e.args.testingRoundResCh <- err
+		}
 		if err := libkb.SleepWithContext(ctx, e.G().Clock(), e.args.Settings.Interval); err != nil {
 			return err
 		}
+		e.meta("woke-interval")
 		if err := libkb.SleepWithContext(ctx, e.G().Clock(), e.args.Settings.WakeUp); err != nil {
 			return err
 		}
+		e.meta("woke-wakeup")
 	}
 }
 
@@ -180,4 +192,10 @@ func (e *PerUserKeyBackground) round(ctx context.Context, ectx *Context) error {
 	// TODO doesn't this Context need a logui?
 	err = RunEngine(eng, ectx)
 	return err
+}
+
+func (e *PerUserKeyBackground) meta(s string) {
+	if e.args.testingMetaCh != nil {
+		e.args.testingMetaCh <- s
+	}
 }
