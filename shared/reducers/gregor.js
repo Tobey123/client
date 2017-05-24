@@ -3,10 +3,12 @@ import * as Constants from '../constants/gregor'
 import * as CommonConstants from '../constants/common'
 import {keyBy} from 'lodash'
 import {ReachabilityReachable} from '../constants/types/flow-types'
+import {onFollowNotifications} from '../actions/profile'
 
 const initialState: Constants.State = {
   reachability: {reachable: ReachabilityReachable.unknown},
   seenMsgs: {},
+  followMsgs: {},
 }
 
 export default function(
@@ -23,6 +25,19 @@ export default function(
           ...state,
           seenMsgs: {
             ...state.seenMsgs,
+            ...newMsgs,
+          },
+        }
+      }
+      break
+    case Constants.updateFollowMsgs:
+      if (!action.error) {
+        const newMsgs: Constants.MsgMap = keyBy(action.payload.followMsgs, m => m.md.msgID.toString('base64'))
+        onFollowNotifications(newMsgs)
+        return {
+          ...state,
+          followMsgs: {
+            ...state.followMsgs,
             ...newMsgs,
           },
         }

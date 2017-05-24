@@ -23,6 +23,7 @@ import type {
   PushOOBM,
   UpdateReachability,
   UpdateSeenMsgs,
+  UpdateFollowMsgs,
   MsgMap,
   NonNullGregorItem,
 } from '../constants/gregor'
@@ -56,8 +57,16 @@ function updateSeenMsgs(seenMsgs: Array<NonNullGregorItem>): UpdateSeenMsgs {
   return {type: Constants.updateSeenMsgs, payload: {seenMsgs}}
 }
 
+function updateFollowMsgs(followMsgs: Array<NonNullGregorItem>): UpdateFollowMsgs {
+  return {type: Constants.updateFollowMsgs, payload: {followMsgs}}
+}
+
 function isTlfItem(gItem: GregorItem): boolean {
   return !!(gItem && gItem.item && gItem.item.category && gItem.item.category === 'tlf')
+}
+
+function isFollowItem(gItem: GregorItem): boolean {
+  return !!(gItem && gItem.item && gItem.item.category && gItem.item.category === 'follow')
 }
 
 function toNonNullGregorItems(state: GregorState): Array<NonNullGregorItem> {
@@ -165,6 +174,19 @@ function* handleTLFUpdate(items: Array<NonNullGregorItem>): SagaGenerator<any, a
   }
 }
 
+function* handleFollow(items: Array<NonNullGregorItem>): SagaGenerator<any, any> {
+  const followMsgs: MsgMap = yield select((state: TypedState) => state.gregor.followMsgs)
+
+  // Check if any are a follow items
+  // eventually we want a clicked notification to lead to onUserClick()
+  // $FlowIssue
+  const followUpdates = items.filter(isFollowItem)
+  const newFollowUpdates = followUpdates.filter(gItem => !followMsgs[gItem.md.msgID.toString('base64')])
+  if (newFollowUpdates.length) {
+    yield put(updateFollowMsgs(newFollowUpdates))
+  }
+}
+
 function* handlePushState(pushAction: PushState): SagaGenerator<any, any> {
   if (!pushAction.error) {
     const {payload: {state}} = pushAction
@@ -174,6 +196,7 @@ function* handlePushState(pushAction: PushState): SagaGenerator<any, any> {
     }
 
     yield call(handleTLFUpdate, nonNullItems)
+    yield call(handleFollow, nonNullItems)
   } else {
     console.log('Error in gregor pushState', pushAction.payload)
   }

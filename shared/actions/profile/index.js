@@ -22,6 +22,7 @@ import {safeTakeEvery} from '../../util/saga'
 import type {SagaGenerator} from '../../constants/types/saga'
 import type {TypedState} from '../../constants/reducer'
 import type {AppLink} from '../../constants/app'
+import type {NonNullGregorItem} from '../../constants/gregor'
 
 function editProfile(bio: string, fullName: string, location: string): Constants.EditProfile {
   return {payload: {bio, fullName, location}, type: Constants.editProfile}
@@ -207,6 +208,17 @@ function* _outputInstructionsActionLink(): SagaGenerator<any, any> {
     default:
       break
   }
+}
+
+function onFollowNotifications(followings: Array<NonNullGregorItem>) {
+  followings.forEach(f => {
+    console.log('Sending Follow notification')
+    yield put((dispatch: Dispatch) => {
+      NotifyPopup(message.author, {body: f.item.body}, -1, message.author, () => {
+        dispatch(onUserClick(f.item.body.replace('/ is now following you\./', '')))
+      })
+    })
+  })
 }
 
 function backToProfile(): Constants.BackToProfile {
