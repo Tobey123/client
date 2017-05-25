@@ -1,6 +1,7 @@
 // @flow
 import ServicesFilter from './services-filter'
 import ResultRow from './result-row'
+import UserInput from './user-input'
 import type {DumbComponentMap} from '../constants/types/more'
 
 const commonServicesFilterMapProps = {
@@ -171,7 +172,89 @@ const servicesResultMap: DumbComponentMap<ResultRow> = {
   },
 }
 
+const commonUserInputMapProps = {
+  placeholder: 'Type someone',
+}
+
+const maxUsers = [
+  {followingState: 'You', icon: null, service: 'Keybase', username: 'chromakode'},
+  {followingState: 'Following', icon: null, service: 'Keybase', username: 'max'},
+  {followingState: 'NotFollowing', icon: 'icon-twitter-logo-16', service: 'Twitter', username: 'denormalize'},
+]
+
+const chrisUsers = [
+  {followingState: 'You', icon: null, service: 'Keybase', username: 'chromakode'},
+  {followingState: 'Following', icon: null, service: 'Keybase', username: 'chris'},
+  {followingState: 'Following', icon: 'icon-hacker-news-logo-16', service: 'Hacker News', username: 'cnojima'},
+  {followingState: 'NotFollowing', icon: 'icon-twitter-logo-16', service: 'Twitter', username: 'chriscoyier'},
+  {followingState: 'NotFollowing', icon: 'icon-facebook-logo-16', service: 'Facebook', username: 'chrisevans'},
+  {followingState: 'NotFollowing', icon: 'icon-github-logo-16', service: 'GitHub', username: 'defunkt'},
+  {followingState: 'NotFollowing', icon: 'icon-reddit-logo-16', service: 'Reddit', username: 'KeyserSosa'},
+]
+
+const userInputMap: DumbComponentMap<UserInput> = {
+  component: UserInput,
+  mocks: {
+    'Empty': {
+      ...commonUserInputMapProps,
+      userItems: [],
+      defaultUsernameText: '',
+    },
+    'Users': {
+      ...commonUserInputMapProps,
+      userItems: maxUsers,
+      defaultUsernameText: '',
+    },
+    'Users + Text': {
+      ...commonUserInputMapProps,
+      userItems: maxUsers,
+      defaultUsernameText: 'ma',
+    },
+    'Users (Wrap)': {
+      ...commonUserInputMapProps,
+      parentProps: {
+        style: {
+          width: 480,
+        },
+      },
+      userItems: chrisUsers,
+      defaultUsernameText: '',
+    },
+    'Users (Wrap Placeholder)': {
+      ...commonUserInputMapProps,
+      parentProps: {
+        style: {
+          width: 446,
+        },
+      },
+      userItems: chrisUsers,
+      defaultUsernameText: '',
+    },
+    'Users (Wrap Text)': {
+      ...commonUserInputMapProps,
+      parentProps: {
+        style: {
+          width: 446,
+        },
+      },
+      userItems: chrisUsers,
+      defaultUsernameText: 'Chris Hemswor',
+    },
+    'Users + Text (Wrap)': {
+      ...commonUserInputMapProps,
+      parentProps: {
+        style: {
+          width: 480,
+        },
+      },
+      userItems: chrisUsers,
+      defaultUsernameText: 'chris',
+    },
+  },
+}
+
 export default {
   'SearchV3 filter': servicesFilterMap,
   'SearchV3 result': servicesResultMap,
+  'SearchV3 user input': userInputMap,
 }

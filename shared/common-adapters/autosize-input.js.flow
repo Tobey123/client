@@ -1,0 +1,13 @@
+// @flow
+import React, {Component} from 'react'
+
+import type {TextType} from './text'
+
+export type Props = {
+  defaultValue?: string,
+  placeholder: string,
+  style: object,
+  onChange: (text: string) => void,
+}
+
+declare export default class AutosizeInput extends Component<void, Props, void> {}
